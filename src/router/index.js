@@ -39,7 +39,7 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/recruitviews/notes/index',
+    path: '/recruitviews/notes/index/:id',
     component: () => import('@/views/recruitviews/notes/index'),
     hidden: true
   },

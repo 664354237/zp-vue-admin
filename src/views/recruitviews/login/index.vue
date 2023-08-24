@@ -6,76 +6,114 @@
       </div>
       <div class="login-box">
         <div class="btn-item">
-          <div class="item" :class="is_active === 1 ? 'active' : ''" @click="PhoneClick(1)">手机登录</div>
-          <div class="item" :class="is_active === 2 ? 'active' : ''" @click="EmailClick(2)">邮箱登录</div>
+          <div
+            class="item"
+            :class="is_active === 1 ? 'active' : ''"
+            @click="PhoneClick(1)"
+          >
+            手机登录
+          </div>
+          <div
+            class="item"
+            :class="is_active === 2 ? 'active' : ''"
+            @click="EmailClick(2)"
+          >
+            邮箱登录
+          </div>
         </div>
         <div class="item-input">
           <div class="item">
             <div class="name">手机号：</div>
             <div class="input">
-              <el-input v-model="nameValue" placeholder="请输入手机号"></el-input>
+              <el-input
+                v-model="nameValue"
+                placeholder="请输入手机号"
+              ></el-input>
             </div>
           </div>
           <div class="item">
             <div class="name">密码：</div>
             <div class="input">
-              <el-input v-model="passwordValue" show-password placeholder="请输入密码"></el-input>
+              <el-input
+                v-model="passwordValue"
+                show-password
+                placeholder="请输入密码"
+              ></el-input>
             </div>
           </div>
           <div class="item">
             <div class="name">短信验证码：</div>
             <div class="input-code">
-              <el-input v-model="codeValue" placeholder="请输入验证码" disabled></el-input>
-              <el-button :disabled="sending" :class="sending === false ? 'orange' : 'grey'" type="primary" @click="HandleCodeSend">{{ codeSendValue }}</el-button>
+              <el-input
+                v-model="codeValue"
+                placeholder="请输入验证码"
+                disabled
+              ></el-input>
+              <el-button
+                :disabled="sending"
+                :class="sending === false ? 'orange' : 'grey'"
+                type="primary"
+                @click="HandleCodeSend"
+                >{{ codeSendValue }}</el-button
+              >
             </div>
           </div>
           <div class="btn">
-            <div class="login" @click='HandleLogin'>立即登录</div>
-            <div class="register" @click="HandleRooter">未注册账号？点击立即注册</div>
+            <div class="login" @click="HandleLogin">立即登录</div>
+            <div class="register" @click="HandleRooter">
+              未注册账号？点击立即注册
+            </div>
           </div>
         </div>
       </div>
-      <div class="login-info1">广东技术师范大学 版权所有 ©2016 Guangdong Polytechinc Normal University</div>
+      <div class="login-info1">
+        广东技术师范大学 版权所有 ©2016 Guangdong Polytechinc Normal University
+      </div>
       <div class="login-info2">粤ICP备05008838 粤ICP备10076626号</div>
     </div>
   </div>
 </template>
 
 <script>
-import { GetsendSmsCode, GetUserLogin } from '@/api/recruitviews/login/index.js'
+import { GetsendSmsCode, GetUserLogin, GetUserProfile } from '@/api/recruitviews/login/index.js'
 import { setToken } from '@/utils/auth'
 export default {
   name: 'Login',
   data() {
     return {
-      nameValue:'',
-      passwordValue:'',
-      codeValue:'',
-      is_active:1,
+      nameValue: '',
+      passwordValue: '',
+      codeValue: '',
+      is_active: 1,
       sending: false,
       codeSendValue: '发送短信验证码',
       countdown: 60,
     }
   },
   methods: {
-    PhoneClick(index){
+    PhoneClick(index) {
       this.is_active = index
     },
-    EmailClick(index){
+    EmailClick(index) {
       this.is_active = index
     },
-    async HandleLogin(){
+    async HandleLogin() {
       // 点击提交登录信息
       let res = await GetUserLogin({ username: this.nameValue, password: this.passwordValue, })
-      if(res.code === 200){
+      if (res.code === 200) {
         setToken(res.data.token)
         this.$router.push({ path: '/recruitviews/home' })
       }
+      let user = await GetUserProfile()
+      console.log(user);
+      if (res.code === 200) {
+        localStorage.setItem('userId', user.id);
+      }
     },
-    HandleRooter(){
+    HandleRooter() {
       this.$router.push({ path: '/register' })
     },
-    HandleCodeSend(){
+    HandleCodeSend() {
       // 防止重复点击
       if (this.sending) {
         return;
@@ -90,7 +128,7 @@ export default {
       if (phoneNumberRegex.test(this.nameValue)) {
         // 手机号格式正确
         let res = await GetsendSmsCode({ phone: this.nameValue })
-        if(res.code === 200){
+        if (res.code === 200) {
           this.$message({ message: '正在发送验证码中....', type: 'success' });
         }
         // 暂时写死验证码
@@ -105,12 +143,12 @@ export default {
       }
     },
     // 倒计时
-    startCountdown(){
-      let timer = setInterval(()=>{
-        if(this.countdown > 0){
+    startCountdown() {
+      let timer = setInterval(() => {
+        if (this.countdown > 0) {
           this.countdown--;
           this.codeSendValue = '正在发送验证码 ' + this.countdown;
-        }else{
+        } else {
           // 倒计时结束
           this.sending = false; // 恢复按钮状态
           this.countdown = 60; // 重置倒计时秒数
@@ -132,28 +170,28 @@ export default {
   background-size: 100% 100%;
   background-position: center;
   overflow: auto;
-  .form-login{
+  .form-login {
     width: 900px;
     margin: 0 auto;
-    .login-title{
+    .login-title {
       padding-top: 60px;
       padding-bottom: 40px;
-      span{
+      span {
         display: block;
         text-align: center;
         font-size: 40px;
         color: #ffffff;
       }
     }
-    .login-box{
+    .login-box {
       background-color: #fff;
       border-radius: 15px;
       overflow: hidden;
-      .btn-item{
+      .btn-item {
         display: flex;
         align-items: center;
-        .item{
-          width: calc(100%/2);
+        .item {
+          width: calc(100% / 2);
           height: 80px;
           line-height: 80px;
           text-align: center;
@@ -162,40 +200,40 @@ export default {
           font-size: 24px;
           cursor: pointer;
         }
-        .active{
+        .active {
           background-color: #ed8035;
           color: #ffffff;
         }
       }
-      .item-input{
+      .item-input {
         padding: 50px 85px 85px;
-        .item{
+        .item {
           margin-top: 25px;
-          .name{
+          .name {
             color: #333333;
             font-size: 16px;
             margin-bottom: 10px;
             font-weight: bold;
           }
-          .input{
+          .input {
             width: 100%;
-            .el-input{
+            .el-input {
               width: 100%;
             }
           }
-          .el-input__inner{
+          .el-input__inner {
             height: 50px;
           }
-          .input-code{
+          .input-code {
             width: 100%;
             position: relative;
-            .input{
+            .input {
               width: 100%;
-              .el-input{
+              .el-input {
                 width: 100%;
               }
             }
-            .el-button{
+            .el-button {
               position: absolute;
               right: 0;
               top: 0;
@@ -207,21 +245,21 @@ export default {
               border-top-right-radius: 4px;
               border-bottom-right-radius: 4px;
             }
-            .orange{
+            .orange {
               background-color: #ed8035;
             }
-            .grey{
+            .grey {
               background-color: #c5c5c5;
             }
           }
         }
-        .item:first-child{
+        .item:first-child {
           margin-top: 0;
         }
       }
-      .btn{
+      .btn {
         margin-top: 65px;
-        .login{
+        .login {
           text-align: center;
           line-height: 50px;
           font-size: 16px;
@@ -232,11 +270,11 @@ export default {
           border-radius: 8px;
           cursor: pointer;
         }
-        .login:hover{
+        .login:hover {
           transition: 0.6s;
           opacity: 0.7;
         }
-        .register{
+        .register {
           margin-top: 25px;
           text-align: center;
           line-height: 50px;
@@ -248,18 +286,18 @@ export default {
           border-radius: 8px;
           cursor: pointer;
         }
-        .register:hover{
+        .register:hover {
           transition: 0.6s;
           opacity: 0.7;
         }
       }
     }
-    .login-info1{
+    .login-info1 {
       color: #ffffff;
       margin-top: 40px;
       text-align: center;
     }
-    .login-info2{
+    .login-info2 {
       color: #ffffff;
       text-align: center;
       margin-top: 5px;

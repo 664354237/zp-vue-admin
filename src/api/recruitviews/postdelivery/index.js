@@ -17,3 +17,20 @@ export function GetDataTableInfoList(data) {
         data
     })
 }
+// 保存用户表单数据
+export function InsertUserRecruitForm(data) {
+    return request({
+        url: 'member_management/user-recruit-form/insert',
+        method: 'post',
+        data
+    })
+}
+//获取用户信息表单
+export function GetUserForm(data) {
+    return request({
+        url: 'member_management/user-recruit-form/getUserForm',
+        method: 'post',
+        data
+    })
+}
+
