@@ -8,7 +8,7 @@
             <div class="download">
               <i class="el-icon-download"></i>
             </div>
-            <div class="btn">下载简历模板</div>
+            <div class="btn" @click="downFileTemp">下载简历模板</div>
           </div>
           <div class="iconfont">
             <span class="ic">········</span>
@@ -25,7 +25,8 @@
             <el-upload
               ref="upload"
               action="#"
-              :show-file-list="false"
+              :show-file-list="true"
+              :file-list="fileList"
               :http-request="handleFileUpload"
             >
               <el-button size="small">
@@ -47,7 +48,7 @@
                         <div class="btn3">在线填表单</div>
                     </div> -->
         </div>
-        <notes-info></notes-info>
+        <notes-info :file="fileId" :info="info"></notes-info>
       </div>
     </div>
   </div>
@@ -56,15 +57,113 @@
 <script>
 import RecruitviewsHeader from '../components/header.vue'
 import NotesInfo from './components/info.vue'
+import { UploadFile, DownFile } from '@/api/recruitviews/postdelivery/index.js'
+import { GetDataTableInfoList } from '@/api/recruitviews/postdelivery/index.js';
+import { GetUserForm } from '@/api/recruitviews/postdelivery/index.js'
+import moment from 'moment';
 export default {
   name: 'delivery',
   data() {
     return {
       topActive: 2,
+      fileId: '',
+      fileList: [],
+      info: {
+        signDate: moment().format('YYYY年MM月DD日'),
+        position: '',
+        department: '',
+        punish: '否',
+        signatureDataURL: '',
+        head: '',
+        familyInfo: {
+          spouse: {},
+          children: {},
+          father: {},
+          mother: {}
+        },
+        profStudies: {
+          middleSchool: {},
+          highOrTechnicalSecondarySchool: {},
+          juniorCollege: {},
+          undergraduateCourse: {},
+          master: {},
+          dr: {}
+        },
+        profWorks: {
+          one: {},
+          two: {},
+          three: {}
+        },
+        profEvalPaperInfos: {
+          one: {},
+          two: {},
+          three: {}
+        },
+        profProjects: {
+          one: {},
+          two: {},
+          three: {}
+        },
+        profAwards: {
+          one: {},
+          two: {},
+          three: {}
+        },
+      },
     }
   },
+  mounted() {
+    this.userForm()
+    this.getPosition()
+  },
   methods: {
-    handleFileUpload() { }
+    userForm() {
+      GetUserForm({ creator: localStorage.getItem('userId') }).then(res => {
+        if (res.data.length > 0) {
+          Object.assign(this.info, JSON.parse(res.data[0].content))
+        }
+      })
+    },
+
+    getPosition() {
+      GetDataTableInfoList({ id: this.$route.params.id }).then(res => {
+        if (res.data) {
+          Object.assign(this.info, res.data)
+        }
+
+      })
+    },
+    downFileTemp() {
+      const params = new FormData()
+
+      params.append('id', this.info.fileTemp)
+      DownFile(params).then((blob) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onload = (e) => {
+          const a = document.createElement('a')
+          a.download = '简历模板.docx'
+          a.href = e.target.result
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+        }
+      })
+    },
+    async handleFileUpload(file) {
+
+      const params = new FormData()
+
+      params.append('dirId', -1)
+      params.append('file', file.file)
+      params.append('dataType', 'user')
+      params.append('userId', localStorage.getItem("userId"))
+      let res = await UploadFile(params)
+      if (res.code === 200) {
+        this.fileId = res.data
+        this.fileList = [{ name: file.file.name, url: "/" }]
+      }
+    }
   },
   components: {
     RecruitviewsHeader,

@@ -1307,7 +1307,7 @@
       </div>
     </div>
 
-    <div class="handle-btn">提交</div>
+    <div class="handle-btn" @click="sumbitData">提交</div>
 
     <!-- 签名弹框 -->
     <el-dialog title="签名" :visible.sync="signature" width="50%">
@@ -1325,81 +1325,47 @@
 <script>
 import { GetDataTableInfoList } from '@/api/recruitviews/postdelivery/index.js';
 import SignaturePad from 'signature_pad'; // 引入 SignaturePad 类
-import { GetUserForm } from '@/api/recruitviews/postdelivery/index.js'
+import { GetUserForm, ApplyRecruit } from '@/api/recruitviews/postdelivery/index.js'
 import moment from 'moment';
 export default {
-  props: { id: { type: String, default: '' } },
+  props: { file: { type: String, default: '' }, info: { type: Object, default: {} } },
 
   name: 'delivery',
   data() {
     return {
       radio: 2,
       signature: false,
-      info: {
-        signDate: moment().format('YYYY年MM月DD日'),
-        position: '',
-        department: '',
-        punish: '否',
-        signatureDataURL: '',
-        head: '',
-        familyInfo: {
-          spouse: {},
-          children: {},
-          father: {},
-          mother: {}
-        },
-        profStudies: {
-          middleSchool: {},
-          highOrTechnicalSecondarySchool: {},
-          juniorCollege: {},
-          undergraduateCourse: {},
-          master: {},
-          dr: {}
-        },
-        profWorks: {
-          one: {},
-          two: {},
-          three: {}
-        },
-        profEvalPaperInfos: {
-          one: {},
-          two: {},
-          three: {}
-        },
-        profProjects: {
-          one: {},
-          two: {},
-          three: {}
-        },
-        profAwards: {
-          one: {},
-          two: {},
-          three: {}
-        },
-      },
+
     }
   },
-  mounted() {
-    this.userForm()
-    this.getPosition()
-  },
+
   methods: {
-    userForm() {
-      GetUserForm({ creator: localStorage.getItem('userId') }).then(res => {
-        if (res.data.length > 0) {
-          Object.assign(this.info, JSON.parse(res.data[0].content))
+    sumbitData() {
+      this.$confirm('确定信息无误,提交申请该职位?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(() => {
+        var data = {
+          content: JSON.stringify(this.info),
+          files: this.file,
+          formType: "form1",
+          recruit: this.$route.params.id,
+          title: this.info.department + "-" + this.info.position + "-" + moment().format('YYYY年MM月DD日 HH:MM:SS') + "岗位申请"
         }
-      })
+        console.log(data);
+        ApplyRecruit(data).then(res => {
+          this.$message({
+            type: 'success',
+            message: res.msg
+          });
+        })
+      }).catch(() => {
+
+      });
     },
 
-    getPosition() {
-      GetDataTableInfoList({ id: this.$route.params.id }).then(res => {
-        if (res.data) {
-          Object.assign(this.info, res.data)
-        }
-
-      })
-    },
     HandleShot() {
       const signatureData = this.signaturePad.toDataURL();
       this.info.signatureDataURL = signatureData;

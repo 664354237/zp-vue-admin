@@ -5,7 +5,9 @@
       <div class="home-info-box">
         <div class="info-title">
           <span>{{ info.position }}</span>
-          <p class="backroot">返回列表</p>
+          <router-link to="/recruitviews/postdelivery">
+            <p class="backroot">返回列表</p></router-link
+          >
         </div>
         <p class="info-time">发布于 {{ info.releaseTime }}</p>
         <div class="position">
