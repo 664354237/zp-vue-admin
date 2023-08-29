@@ -11,7 +11,7 @@ export const service = axios.create({
   timeout: 10000 // request timeout
 })
 
-/// request interceptor
+//// request interceptor
 service.interceptors.request.use(
   (config) => {
     // if (store.getters.token) {
